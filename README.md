@@ -20,6 +20,20 @@ Exploitability: 5
 CVS base score: 9.8: https://nvd.nist.gov/vuln/detail/CVE-2023-0297
 CVSS vector string: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
 ```
+```bash
+~ » attackerkb_checker.py cvelist.txt                                                                                                                    
+AttackerKB has information about CVE-2023-0297! https://attackerkb.com/topics/cve-2023-0297
+Attacker value: 2
+Exploitability: 5
+CVS base score: 9.8: https://nvd.nist.gov/vuln/detail/CVE-2023-0297
+CVSS vector string: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+AttackerKB doesn’t have attacker value or exploitability information about CVE-2023-24055
+CVS base score: 5.5: https://nvd.nist.gov/vuln/detail/CVE-2023-24055
+CVSS vector string: CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N
+AttackerKB doesn’t have attacker value or exploitability information about CVE-2023-22501
+CVS base score: 9.1: https://nvd.nist.gov/vuln/detail/CVE-2023-22501
+CVSS vector string: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N
+```
 
 Files will be searched line by line with a regex to detect CVEs (one per line).
 
