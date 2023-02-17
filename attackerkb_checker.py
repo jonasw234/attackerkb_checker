@@ -77,6 +77,8 @@ def check_attackerkb(cve: str, api_key: str):
         if attacker_value:
             background_color = None
             if attacker_value >= 4:
+                background_color = "dark red"
+            elif attacker_value == 3:
                 background_color = "red"
             elif attacker_value >= 2:
                 background_color = "yellow"
@@ -91,6 +93,8 @@ def check_attackerkb(cve: str, api_key: str):
         if exploitability:
             background_color = None
             if exploitability >= 4:
+                background_color = "dark red"
+            elif attacker_value == 3:
                 background_color = "red"
             elif exploitability >= 2:
                 background_color = "yellow"
@@ -135,7 +139,9 @@ def check_nvd(cve: str):
             nvd_response.get("cvssMetricV30", nvd_response.get("cvssMetricV2")),
         )[0]["cvssData"]["vectorString"]
         background_color = None
-        if base_score >= 7:
+        if base_score >= 9:
+            background_color = "dark red"
+        elif base_score >= 7:
             background_color = "red"
         elif base_score >= 4:
             background_color = "yellow"
