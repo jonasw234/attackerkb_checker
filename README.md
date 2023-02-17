@@ -6,7 +6,7 @@ Checks a single CVE or a list of CVEs against [AttackerKB](https://attackerkb.co
 attackerkb_checker.py [--nvd] [--apikey=<str>] INPUT
 
 Options:
-    -a <str>, --apikey=<str>  The API key for AttackerKB [not used in dev version]
+    -a <str>, --apikey=<str>  The API key for AttackerKB
     --nvd                     Query National Vulnerability Database (NVD) for CVS base score and CVSS vector string [default: False]
     INPUT                     Input can be either CVE number or list with one CVE entry per line
 ```
