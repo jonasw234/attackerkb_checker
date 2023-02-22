@@ -86,7 +86,7 @@ def check_attackerkb(cve: str, api_key: str):
             )
         )
         return
-    attackerkb_response = json.loads(attackerkb_response).text.get("data", {}).get("score", {})
+    attackerkb_response = json.loads(attackerkb_response.text).get("data", {}).get("score", {})
     attacker_value = attackerkb_response.get("attackerValue")
     exploitability = attackerkb_response.get("exploitability")
     if attacker_value or exploitability:
