@@ -8,12 +8,13 @@ attackerkb_checker.py [--nvd] [--apikey=<str>] INPUT
 
 Options:
     -a <str>, --apikey=<str>  The API key for AttackerKB
-    --nvd                     Query National Vulnerability Database (NVD) for CVS base score and CVSS vector string [default: False]
+    --nvd                     Query National Vulnerability Database (NVD) for CVS base score and CVSS vector string. Slower due to rate limiting [default: False]
     INPUT                     Input can be either CVE number or list with one CVE entry per line
 """
 import json
 import os
 import re
+import time
 
 from colors import black
 from docopt import docopt
@@ -45,10 +46,19 @@ def main(
                     cves.append(cve_search.group(0).lower())
     else:
         cves.append(arg.lower())
-    for cve in cves:
+    for idx, cve in enumerate(cves):
         check_attackerkb(cve, api_key)
+        if idx < len(cves) - 1:
+            # Prevent 403s for doing too many requests per second
+            time.sleep(0.5)
         if nvd:
             check_nvd(cve)
+            if idx < len(cves) - 1:
+                # Prevent 403s for doing too many requests per second
+                # 5 requests in rolling 30 second window for NVD: https://nvd.nist.gov/developers/start-here
+                time.sleep(
+                    5.5
+                )  # Plus 0.5 seconds from above makes 30 / 5 = 6 seconds delay between requests
 
 
 def check_attackerkb(cve: str, api_key: str):
@@ -61,15 +71,22 @@ def check_attackerkb(cve: str, api_key: str):
     api_key : str
         The API key for the AttackerKB
     """
-    attackerkb_response = json.loads(
-        requests.get(
-            f"https://api.attackerkb.com/v1/topics/{cve.lower()}",
-            headers={
-                "Accept": "application/json",
-                "Authorization": f"Basic {api_key}",
-            },
-        ).text
-    ).get("data", {}).get("score", {})
+    attackerkb_response = requests.get(
+        f"https://api.attackerkb.com/v1/topics/{cve.lower()}",
+        headers={
+            "Accept": "application/json",
+            "Authorization": f"Basic {api_key}",
+        },
+    )
+    if attackerkb_response.status_code != 200:
+        print(
+            black(
+                f"Currently unable to query https://attackerkb.com/topics/{cve.lower()}! Received status code {attackerkb_response.status_code}.",
+                bg="cyan",
+            )
+        )
+        return
+    attackerkb_response = json.loads(attackerkb_response).text.get("data", {}).get("score", {})
     attacker_value = attackerkb_response.get("attackerValue")
     exploitability = attackerkb_response.get("exploitability")
     if attacker_value or exploitability:
@@ -124,11 +141,18 @@ def check_nvd(cve: str):
     cve : str
         The CVE to check
     """
-    nvd_response = json.loads(
-        requests.get(
-            f"https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve.upper()}"
-        ).text
-    )["vulnerabilities"][0]["cve"]["metrics"]
+    nvd_response = requests.get(
+        f"https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve.upper()}"
+    )
+    if nvd_response.status_code != 200:
+        print(
+            black(
+                f"Currently unable to query https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve.upper()}! Received status code {nvd_response.status_code}.",
+                bg="cyan",
+            )
+        )
+        return
+    nvd_response = json.loads(nvd_response.text)["vulnerabilities"][0]["cve"]["metrics"]
     try:
         base_score = nvd_response.get(
             "cvssMetricV31",
