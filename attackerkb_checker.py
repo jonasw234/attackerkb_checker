@@ -178,8 +178,8 @@ def check_nvd(cve: str):
             )
         )
         print(f"CVSS vector string: {vector_string}")
-    except KeyError:
-        print("Querying NVD yielded no results.")
+    except (KeyError, TypeError):
+        print(black("Querying NVD yielded no results.", bg="cyan"))
 
 
 def read_stored_arguments(path: str) -> dict:
